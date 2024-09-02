@@ -1,0 +1,86 @@
+package com.uncia.droolsaccumulatenested.model
+//import com.uncia.droolsaccumulatenested.model.Cibil;
+//global com.uncia.droolsaccumulatenested.model.Cibil cibil;
+global com.uncia.droolsaccumulatenested.model.Account account;
+import com.uncia.droolsaccumulatenested.model.AccountDtls
+global com.uncia.droolsaccumulatenested.model.Response response;
+
+dialect "mvel"
+rule "Civil Dev-1"
+when
+    $c: Cibil($accounts : listOfAccount != null)
+	$accou : Account( $accountDtls: listOfAccountDtls != null ) from $accounts
+    totalOverDue : Number() from accumulate(
+           AccountDtls((ownership != "02" && ownership != "03"), (loanType != "07" && loanType != "53" && loanType != "57"), $q: od ) from $accountDtls,
+            init(int count = 0;),
+            action(count += $q;),
+            reverse(count -= $q;),
+            result(count)
+        )
+    then
+          $accou.setIndi_Joint_No_Gold_agri_Loan_OD(totalOverDue);          
+end
+
+rule "Civil Dev-2"
+when
+    $c: Cibil($accounts : listOfAccount != null)
+	$accou : Account( $accountDtls: listOfAccountDtls != null ) from $accounts
+    totalOverDue : Number() from accumulate(
+           AccountDtls((ownership == "01" || ownership == "04"), (loanType == "07" || loanType == "53" || loanType == "57"), $q: od ) from $accountDtls,
+            init(int count = 0;),
+            action(count += $q;),
+            reverse(count -= $q;),
+            result(count)
+        )
+    then
+    
+          $accou.setIndi_Joint_Gold_agri_Loan_OD(totalOverDue);          
+end
+
+rule "Civil Dev-3"
+when
+    $c: Cibil($accounts : listOfAccount != null)
+	$accou: Account( $accountDtls: listOfAccountDtls != null ) from $accounts
+    totalOverDue : Number() from accumulate(
+           AccountDtls((ownership == "03"), $q: od ) from $accountDtls,
+            init(int count = 0;),
+            action(count += $q;),
+            reverse(count -= $q;),
+            result(count)
+        )
+    then
+    
+          $accou.setAll_Guarantor_OD(totalOverDue);         
+end
+
+rule "Civil Dev-4"
+when
+    $c: Cibil($accounts : listOfAccount != null)
+	$accou: Account( $accountDtls: listOfAccountDtls != null ) from $accounts
+    totalOverDue : Number() from accumulate(
+           AccountDtls((ownership == "1" || ownership == "4"), $q: od ) from $accountDtls,
+            init(int count = 0;),
+            action(count += $q;),
+            reverse(count -= $q;),
+            result(count)
+        )
+    then
+    
+          $accou.setAll_Indi_Joint_OD(totalOverDue);         
+end
+
+rule "Civil Dev-6"
+when
+    $c: Cibil($accounts : listOfAccount != null)
+	$accou: Account( $accountDtls: listOfAccountDtls != null ) from $accounts
+    totalOverDue : Number() from accumulate(
+           AccountDtls((ownership == "01" || ownership == "04"), (loanType == "07" || loanType == "53" || loanType == "57"), $q: od ) from $accountDtls,
+            init(int count = 0;),
+            action(count += $q;),
+            reverse(count -= $q;),
+            result(count)
+        )
+    then
+          $accou.setAll_All_OD(totalOverDue);
+          
+end
